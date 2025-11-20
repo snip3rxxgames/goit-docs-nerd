@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snip3r - Homepage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* --- Base Styles --- */
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* Prevent scrolling on main page */
+            background-color: #000;
+            color: #fff;
+            font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            cursor: default;
+        }
+
+        /* --- Starry Background --- */
+        #star-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* --- Main App Wrapper --- */
+        #app-wrapper {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding-top: 0; /* Will be 90px if notification is active */
+            transition: padding-top 0.5s ease-in-out;
+        }
+
+        /* --- Notification Banner --- */
+        #notification-banner {
+            position: fixed;
+            top: -100px; /* Start off-screen */
+            left: 0;
+            width: 100%;
+            height: 90px; /* 70px bar + 20px */
+            background-color: #FFA500; /* yellowish-orange */
+            color: #000;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            transition: top 0.5s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+        #notification-banner.show {
+            top: 0;
+        }
+        
+        /* NEW: Game Error Banner (Hidden on homepage) */
+        #game-error-banner {
+            background-color: #D90429; /* Bright red */
+            color: #fff;
+            font-weight: 700;
+            height: auto; /* Auto height */
+            padding: 1rem 1.5rem; /* Padding for content */
+        }
+        #game-error-banner .notification-content {
+            color: #fff;
+            font-weight: 700;
+        }
+        #game-error-banner #notification-close svg {
+            stroke: #fff;
+        }
+
+        #notification-fade-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: none; /* Show on hide */
+        }
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+            z-index: 5;
+        }
+        #notification-button {
+            background-color: #FF8C00; /* solid orange */
+            color: #fff;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #notification-button:hover { background-color: #FF7000; }
+        #notification-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 0.5rem;
+            z-index: 5;
+        }
+        #notification-close svg { width: 24px; height: 24px; stroke: #000; }
+
+
+        /* --- Header / Nav --- */
+        header {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+            border-bottom: 1px solid rgba(50, 50, 50, 0.5);
+            height: 100px; /* Made header taller */
+            position: relative; /* for counter overlay */
+            z-index: 2; /* Below menu */
+            gap: 1rem; /* Added gap for header items */
+        }
+        
+        #menu-btn {
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            z-index: 1001;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        #menu-btn svg {
+            width: 30px;
+            height: 30px;
+            stroke: #fff;
+            transition: all 0.2s ease;
+        }
+        #menu-btn:hover svg {
+            stroke: #00ffff;
+        }
+
+        /* --- Snip3r Sign --- */
+        .header-center-item {
+            flex-grow: 0; /* Don't grow, let ad spot take space */
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            z-index: 3;
+        }
+        #snip3r-sign {
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            position: relative;
+        }
+        #snip3r-sign.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .sign-face {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff;
+            padding: 0.5rem 1rem;
+            border: 1px solid #00ffff;
+            border-radius: 8px;
+            background: rgba(0, 255, 255, 0.1);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            white-space: nowrap;
+        }
+        .sign-back {
+            transform: rotateY(180deg);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
+            border-color: #ff00ff;
+            background: rgba(255, 0, 255, 0.1);
+        }
+
+        /* NEW: Header Ad Spot */
+        #header-ad-spot {
+            flex-grow: 1; /* Take up available space */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 0;
+            height: 80px; /* Made 30px taller */
+            background-color: #1a1a1a;
+            border: 1px dashed #444;
+            color: #555;
+            font-weight: 700;
+            font-size: 0.875rem;
+            border-radius: 8px;
+            padding: 0 1rem;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Visitor Counter Container */
+        #visitor-counter-container {
+            position: relative; /* For overlay */
+            flex-grow: 0; /* Don't grow */
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 0; /* Prevents overflow issues */
+            z-index: 3;
+        }
+        #visitor-counter-blocker {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10; /* Above counter, below menu */
+        }
+        #visitor-counter-container > script,
+        #visitor-counter-container > a,
+        #visitor-counter-container > img {
+            display: inline-block;
+            line-height: 1;
+        }
+
+        /* --- Side Menu --- */
+        #menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #side-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            background-color: #0a0a0a;
+            border-right: 1px solid #333;
+            z-index: 1000;
+            padding: calc(100px + 1rem) 0 2rem 0; /* Updated padding-top */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+            transition: left 0.3s ease-in-out;
+        }
+        #side-menu.active {
+            left: 0;
+        }
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #aaa;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            border-bottom: 1px solid #222;
+            transition: all 0.2s ease;
+        }
+        .menu-link:first-child {
+            border-top: 1px solid #222;
+        }
+        .menu-link:hover {
+            background-color: rgba(0, 255, 255, 0.1);
+            color: #00ffff;
+        }
+        .menu-link svg {
+            width: 24px;
+            height: 24px;
+        }
+        #side-menu-main {
+            display: flex;
+            flex-direction: column;
+        }
+        #side-menu-footer {
+            display: none;
+        }
+
+        /* --- Page Container --- */
+        main {
+            flex-grow: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 1.5rem;
+            padding-bottom: 3rem; /* Add padding for content */
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Games & Tools Page Grid --- */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.5rem;
+            justify-items: center;
+        }
+        @media (min-width: 640px) {
+            .card-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+        }
+        @media (min-width: 1024px) {
+            .card-grid { grid-template-columns: repeat(5, 1fr); }
+        }
+
+        .card {
+            width: 100%;
+            aspect-ratio: 1 / 1.2;
+            background-color: rgba(30, 30, 30, 0.5);
+            border: 1px solid rgba(50, 50, 50, 0.7);
+            border-radius: 16px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.2s ease-in-out;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            position: relative; /* For loader */
+            overflow: hidden; /* For loader */
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #00ffff;
+            background-color: rgba(0, 255, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        .card-icon {
+            width: 80%; /* Increased size */
+            aspect-ratio: 1 / 1;
+            border-radius: 12px;
+            object-fit: cover;
+            background-color: #000;
+            border: 1px solid rgba(70, 70, 70, 1);
+            transition: filter 0.2s ease;
+        }
+        /* Tool icons can be SVGs */
+        .card-icon-svg {
+            width: 80%; /* Increased size */
+            aspect-ratio: 1 / 1;
+            padding: 15%; /* Padding inside the SVG container */
+            border-radius: 12px;
+            object-fit: cover;
+            background-color: #000;
+            border: 1px solid rgba(70, 70, 70, 1);
+            color: #00ffff;
+        }
+        .card span {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-top: 0.75rem;
+            display: block;
+            transition: filter 0.2s ease;
+        }
+
+        /* --- Ad Card --- */
+        .ad-card {
+            width: 100%;
+            aspect-ratio: 1 / 1.2;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-weight: 700;
+            text-align: center;
+            font-size: 1rem;
+            padding: 1rem;
+        }
+
+
+        /* --- Card Loader (For old offline logic, no longer used) --- */
+        .card-loader {
+            display: none;
+        }
+
+
+        /* --- Settings/Individual Tool Page --- */
+        .setting-section {
+            max-width: 900px; /* Wider for tools */
+            margin: 0 auto 2rem auto;
+            background-color: rgba(20, 20, 20, 0.5);
+            border: 1px solid rgba(50, 50, 50, 0.7);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .setting-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(50, 50, 50, 1);
+            padding-bottom: 0.5rem;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .setting-item-text {
+            flex-grow: 1;
+        }
+        .setting-item-text h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        .setting-item-text p {
+            font-size: 0.875rem;
+            color: #aaa;
+            margin-top: 0.25rem;
+        }
+
+        /* --- Neon Toggle Switch --- */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            border-radius: 34px;
+            transition: all 0.3s ease;
+            border: 1px solid #555;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        input:checked + .toggle-slider {
+            background-color: #00ffff;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        /* --- Tool Styles --- */
+        .tool-btn {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #fff;
+            background-color: rgba(0, 255, 255, 0.2);
+            border: 2px solid #00ffff;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        .tool-btn:hover {
+            background-color: rgba(0, 255, 255, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        .tool-btn.secondary {
+            background-color: rgba(100, 100, 100, 0.2);
+            border-color: #777;
+            box-shadow: none;
+        }
+        .tool-btn.secondary:hover {
+            background-color: rgba(100, 100, 100, 0.4);
+        }
+        .tool-btn:disabled {
+            background-color: #333;
+            border-color: #555;
+            color: #777;
+            box-shadow: none;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Image Rounder */
+        #image-preview-container {
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1 / 1;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 2px dashed #555;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            color: #aaa;
+            font-style: italic;
+        }
+        #image-preview {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .slider-container {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #333;
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
+            cursor: pointer;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Password Generator */
+        #password-output-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        #password-output {
+            flex-grow: 1;
+            background-color: #000;
+            border: 1px solid #444;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.25rem;
+            color: #fff;
+            text-align: center;
+            word-wrap: break-word;
+            min-height: 60px;
+        }
+        #password-copy-btn {
+            flex-shrink: 0;
+            width: 60px;
+            background-color: rgba(100, 100, 100, 0.2);
+            border: 2px solid #777;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        #password-copy-btn:hover {
+            background-color: rgba(100, 100, 100, 0.4);
+        }
+        .password-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .password-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0,0,0,0.2);
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+
+        /* Unit Converter */
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .converter-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+        .converter-group {
+            background-color: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .converter-group h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #00ffff;
+            margin-bottom: 1rem;
+        }
+        .converter-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .converter-input {
+            width: 100%;
+            background-color: #000;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 0.5rem;
+            color: #fff;
+        }
+        
+        /* --- Game View Page --- */
+        #game-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 50;
+            background-color: #000;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto; /* Allow scrolling */
+        }
+        #game-view.active {
+            display: flex;
+        }
+
+        /* Ad Placeholder Styles */
+        .ad-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1a1a1a;
+            border: 1px dashed #444;
+            color: #555;
+            font-weight: 700;
+            border-radius: 8px;
+            margin: 1rem auto;
+            padding: 1rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        #ad-spot-top {
+            width: 100%;
+            max-width: 728px;
+            height: 90px;
+        }
+        .ad-spot-mrec { /* Medium Rectangle */
+            width: 100%;
+            max-width: 300px;
+            height: 250px;
+        }
+        .ad-spot-bottom-banner {
+            width: 100%;
+            max-width: 728px;
+            height: 90px;
+        }
+
+        #game-iframe-wrapper {
+            width: 100%;
+            max-width: 1100px; /* Limit max game width */
+            margin: 0 auto;
+            aspect-ratio: 16 / 9; /* Force aspect ratio */
+            position: relative;
+            background-color: #0a0a0a;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0; /* Prevent from shrinking */
+        }
+        #game-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .toast-message {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 100;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .toast-message.show {
+            opacity: 1;
+        }
+
+        #game-controls {
+            flex-shrink: 0;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center buttons */
+            gap: 1rem;
+            padding: 1rem;
+        }
+        .game-control-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: #1a1a1a;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none; /* For the 'a' tag */
+        }
+        .game-control-btn:hover {
+            border-color: #00ffff;
+            background-color: rgba(0, 255, 255, 0.1);
+            color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        .game-control-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Game Details Section */
+        #game-details-wrapper {
+            width: 100%;
+            max-width: 1100px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        #game-description-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1.5rem;
+        }
+        /* Layout for Screenshot + Writing */
+        .game-layout-section-1, .game-layout-section-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        @media (min-width: 768px) {
+            .game-layout-section-1 {
+                grid-template-columns: 400px 1fr; /* Widened screenshot */
+            }
+            .game-layout-section-2 {
+                grid-template-columns: 1fr 300px; /* Kept ad at 300px */
+            }
+        }
+        #game-screenshot {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #444;
+            flex-shrink: 0;
+        }
+        #game-description-part-1 p,
+        #game-description-part-2 p {
+            margin-bottom: 1rem;
+        }
+        #game-description-ad-spot {
+            flex-shrink: 0;
+        }
+        /* Layout for final summary */
+        #game-description-summary {
+            text-align: center;
+            font-style: italic;
+            color: #aaa;
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
+        }
+
+        #game-title-bar {
+            display: flex;
+            justify-content: center; /* Center title */
+            align-items: center;
+            padding: 1rem;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+        }
+        #game-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            user-select: none;
+        }
+        
+        /* --- Offline Indicator --- */
+        #offline-indicator {
+            position: fixed;
+            top: 100px; /* Updated for new header height */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ff3333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 9999;
+            font-weight: 600;
+            display: none; /* Changed: now a banner */
+        }
+        #offline-indicator.active {
+            display: block;
+        }
+
+        /* --- Custom Context Menu --- */
+        #custom-context-menu {
+            position: fixed;
+            z-index: 10000;
+            width: 180px;
+            background: #2c2b2b;
+            border-radius: 10px;
+            padding: 0.5rem;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+            display: none;
+            border: 1px solid #444;
+            backdrop-filter: blur(10px);
+        }
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            color: #fff;
+            font-weight: 500;
+            user-select: none;
+            cursor: pointer;
+        }
+        .context-menu-item:hover {
+            background-color: rgba(0, 255, 255, 0.1);
+            color: #00ffff;
+        }
+        .context-menu-item svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Utility */
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Notification Banner (Yellow) -->
+    <div id="notification-banner">
+        <canvas id="notification-fade-canvas"></canvas>
+        <div class="notification-content">
+            <span id="notification-text">Notification text goes here.</span>
+            <button id="notification-button" class="hidden">Button</button>
+        </div>
+        <button id="notification-close" title="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+    </div>
+
+    <!-- Game Error Banner (Red) -->
+    <div id="game-error-banner" class="notification-banner hidden">
+        <div class="notification-content">
+            <span id="game-error-text">Can't load game. Try again.</span>
+        </div>
+        <button id="game-error-close" class="notification-close" title="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+    </div>
+
+
+    <!-- Starry Background -->
+    <canvas id="star-canvas"></canvas>
+
+    <!-- Side Menu -->
+    <div id="menu-overlay"></div>
+    <div id="side-menu">
+        <div id="side-menu-main">
+            <a href="#" class="menu-link" data-page="games">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                Home
+            </a>
+            <a href="#" class="menu-link" data-page="offline-games"> <!-- Changed data-page -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 14.25h16.5m-16.5 4.5h16.5m-16.5-8.25h16.5M3.75 6h16.5M3.75 10.5h16.5" /></svg> <!-- Icon changed -->
+                Flash Games <!-- Text Changed -->
+            </a>
+            <a href="#" class="menu-link" data-page="tools">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.83-5.83M11.42 15.17l-4.24-4.24m4.24 4.24l-4.24-4.24M11.42 15.17L15.17 11.42m-3.75 3.75l-4.24-4.24m4.24 4.24l3.75-3.75m-3.75 3.75L1.5 15.17m14.48-4.48l-4.24-4.24m4.24 4.24l-4.24-4.24m4.24 4.24l5.83 5.83m-5.83-5.83l-5.83-5.83m5.83 5.83l-4.24 4.24" /></svg>
+                Tools
+            </a>
+            <a href="#" class="menu-link" data-page="settings">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-1.002 1.13-1.19a8.25 8.25 0 011.06 0c.57.188 1.04.648 1.13 1.19l.09 1.08c.394.062.784.152 1.15.27l1.04-.32c.51-.158 1.07-.03 1.48.38a7.5 7.5 0 010 10.61c-.41.41-1.01.538-1.48.38l-1.04-.32a9.025 9.025 0 01-1.15.27l-.09 1.08c-.09.542-.56 1.002-1.13 1.19a8.25 8.25 0 01-1.06 0c-.57-.188-1.04-.648-1.13-1.19l-.09-1.08a9.025 9.025 0 01-1.15-.27l-1.04.32c-.51.158-1.07-.03-1.48-.38a7.5 7.5 0 010-10.61c.41-.41 1.01.538 1.48.38l1.04.32c.366-.118.756-.208 1.15-.27l.09-1.08z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                Settings
+            </a>
+            <!-- Bug report link now opens in a new tab -->
+            <a href="https://forms.gle/Ki9Tr74K7te8cSxu8" target="_blank" class="menu-link" id="bug-report-link">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.05 4.29a1.5 1.5 0 01.44 1.06v.29c0 .32-.12.62-.32.85l-.33.39a1.5 1.5 0 01-2.12 0l-.33-.39a1.5 1.5 0 01-.32-.85v-.29c0-.42.17-.82.44-1.06A6.73 6.73 0 0112 3a6.73 6.73 0 011.05 1.29zm0 0a6.73 6.73 0 00-2.1 0m2.1 0a6.73 6.73 0 011.05 4.4v.22c0 .33-.13.64-.35.87l-.33.39a1.5 1.5 0 01-2.12 0l-.33-.39a1.5 1.5 0 01-.35-.87v-.22c0-1.6.48-3.1 1.3-4.4zm0 0a6.73 6.73 0 00-2.1 0m2.1 0a6.73 6.73 0 011.05 4.4v.22c0 .33-.13.64-.35.87l-.33.39a1.5 1.5 0 01-2.12 0l-.33-.39a1.5 1.5 0 01-.35-.87v-.22c0-1.6.48-3.1 1.3-4.4zM12 9.75A2.25 2.25 0 0114.25 12a2.25 2.25 0 01-2.25 2.25A2.25 2.25 0 019.75 12a2.25 2.25 0 012.25-2.25z" /><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                Report a Bug
+            </a>
+        </div>
+    </div>
+
+    <!-- Main App Wrapper -->
+    <div id="app-wrapper">
+        <!-- Header -->
+        <header>
+            <button id="menu-btn" title="Open Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </button>
+            
+            <!-- Snip3r Sign -->
+            <div class="header-center-item">
+                <div id="snip3r-sign">
+                    <div class="sign-face sign-front">Made by Snip3r</div>
+                    <div class="sign-face sign-back">(Michael Roman)</div>
+                </div>
+            </div>
+
+            <!-- Header Ad Spot -->
+            <div id="header-ad-spot">
+                Ad Spot - Banner (468x60)
+            </div>
+
+            <!-- Visitor Counter -->
+            <div id="visitor-counter-container">
+                <a href='http://www.freevisitorcounters.com'></a> <script type='text/javascript' src='https://www.freevisitorcounters.com/auth.php?id=87733bec59a38d0f75b3e5e364af65534e046daf'></script>
+                <script type="text/javascript" src="https://freevisitorcounters.com/en/home/counter/1436209/t/5"></script>
+                <div id="visitor-counter-blocker"></div> <!-- INVISIBLE OVERLAY -->
+            </div>
+
+            <!-- Star logo removed -->
+        </header>
+
+        <!-- Offline Indicator Banner -->
+        <div id="offline-indicator">
+            You are currently offline.
+        </div>
+        
+        <!-- Page Container -->
+        <main>
+            <!-- Games Page -->
+            <div id="games-page" class="page active">
+                <div id="game-grid" class="card-grid">
+                    <!-- Games will be injected here by JS -->
+                </div>
+            </div>
+
+            <!-- Flash Games Page (Was Offline Games) -->
+            <div id="offline-games-page" class="page">
+                <div class="setting-section" style="max-width: 1200px">
+                    <h2 class="setting-title">Flash Games</h2> <!-- Title Changed -->
+                    <p class="setting-item-text" style="color: #aaa; margin-bottom: 1.5rem;">A collection of classic Flash games.</p> <!-- Text Changed -->
+                    <div id="offline-game-grid" class="card-grid">
+                        <!-- Flash games will be injected here by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tools Page (Grid) -->
+            <div id="tools-page" class="page">
+                <div id="tools-grid" class="card-grid">
+                    <!-- Tool cards will be injected here by JS -->
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings-page" class="page">
+                <div class="setting-section" style="max-width: 700px">
+                    <div class="setting-title">Appearance</div>
+                    <div class="setting-item">
+                        <div class="setting-item-text">
+                            <h3>Star Animation</h3>
+                            <p>Enable or disable the animated background.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-stars" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-item-text">
+                            <h3>Star Animation Style</h3>
+                            <p>Change the background animation type.</p>
+                        </div>
+                        <select id="star-animation-select" class="converter-input" style="width: 150px;">
+                            <option value="snow">Snow</option>
+                            <option value="warp">Warp</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool: Image Rounder Page -->
+            <div id="tool-image-rounder" class="page">
+                <div class="setting-section">
+                    <h2 class="setting-title">Tool: Image Rounder</h2>
+                    
+                    <button id="image-upload-btn" class="tool-btn">Upload Image</button>
+                    <input type="file" id="image-upload-input" accept="image/*" class="hidden">
+                    
+                    <div id="image-preview-container">
+                        <span>No image uploaded</span>
+                    </div>
+
+                    <div class="slider-container">
+                        <label for="border-radius-slider" class="setting-item-text">Corner Radius: <span id="border-radius-value">0</span>%</label>
+                        <input type="range" id="border-radius-slider" min="0" max="50" value="0">
+                    </div>
+
+                    <div class="slider-container">
+                        <label for="image-size-slider" class="setting-item-text">Image Size: <span id="image-size-value">100</span>%</label>
+                        <input type="range" id="image-size-slider" min="10" max="100" value="100">
+                    </div>
+
+                    <button id="image-download-btn" class="tool-btn secondary" disabled>Download Rounded Image</button>
+                </div>
+            </div>
+
+            <!-- Tool: Password Generator Page -->
+            <div id="tool-password-generator" class="page">
+                <div class="setting-section">
+                    <h2 class="setting-title">Tool: Password Generator</h2>
+
+                    <div id="password-output-container">
+                        <div id="password-output">Click Generate...</div>
+                        <button id="password-copy-btn" title="Copy to Clipboard">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 24px; height: 24px; color: #aaa;"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v8.25A2.25 2.25 0 006 16.5h2.25m8.25-8.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-7.5A2.25 2.25 0 018.25 18v-1.5m8.25-8.25h.008v.008H16.5V8.25z" /></svg>
+                        </button>
+                    </div>
+
+                    <div class="slider-container">
+                        <label for="password-length-slider" class="setting-item-text">Password Length: <span id="password-length-value">16</span></label>
+                        <input type="range" id="password-length-slider" min="8" max="32" value="16">
+                    </div>
+
+                    <div class="password-options">
+                        <div class="password-option">
+                            <label for="pw-opt-uppercase">Uppercase (A-Z)</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="pw-opt-uppercase" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="password-option">
+                            <label for="pw-opt-lowercase">Lowercase (a-z)</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="pw-opt-lowercase" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="password-option">
+                            <label for="pw-opt-numbers">Numbers (0-9)</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="pw-opt-numbers" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="password-option">
+                            <label for="pw-opt-symbols">Symbols (!@#)</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="pw-opt-symbols" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button id="password-generate-btn" class="tool-btn">Generate Password</button>
+
+                </div>
+            </div>
+
+            <!-- Tool: Unit Converter Page -->
+            <div id="tool-unit-converter" class="page">
+                <div class="setting-section">
+                    <h2 class="setting-title">Tool: Unit Converter</h2>
+                    
+                    <div class="converter-grid">
+                        <!-- Length -->
+                        <div class="converter-group">
+                            <h3>Length</h3>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="cm" data-group="length">
+                                <span>cm</span>
+                            </div>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="m" data-group="length">
+                                <span>m</span>
+                            </div>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="km" data-group="length">
+                                <span>km</span>
+                            </div>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="in" data-group="length">
+                                <span>in</span>
+                            </div>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="ft" data-group="length">
+                                <span>ft</span>
+                            </div>
+                        </div>
+                        <!-- Mass -->
+                        <div class="converter-group">
+                            <h3>Mass</h3>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="g" data-group="mass">
+                                <span>g</span>
+                            </div>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="kg" data-group="mass">
+                                <span>kg</span>
+                            </div>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="lb" data-group="mass">
+                                <span>lb</span>
+                            </div>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="oz" data-group="mass">
+                                <span>oz</span>
+                            </div>
+                        </div>
+                        <!-- Temperature -->
+                        <div class="converter-group">
+                            <h3>Temperature</h3>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="c" data-group="temp">
+                                <span>°C</span>
+                            </div>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="f" data-group="temp">
+                                <span>°F</span>
+                            </div>
+                            <div class="converter-row">
+                                <input type="number" class="converter-input" data-unit="k" data-group="temp">
+                                <span>K</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Game View Page (Full Screen Layer) -->
+    <div id="game-view" class="page">
+        <!-- Top Ad Spot -->
+        <div id="ad-spot-top" class="ad-placeholder">
+            Ad Spot - Leaderboard (728x90)
+        </div>
+
+        <!-- Game Title Bar -->
+        <div id="game-title-bar">
+            <h2 id="game-title">Game Title</h2>
+        </div>
+
+        <!-- Game Iframe -->
+        <div id="game-iframe-wrapper">
+            <iframe id="game-iframe" src="about:blank" allowfullscreen></iframe>
+            <div id="game-toast" class="toast-message"></div>
+        </div>
+
+        <!-- Game Controls -->
+        <div id="game-controls">
+            <button class="game-control-btn" id="game-mute-btn" title="Mute/Unmute">
+                <svg id="mute-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l-3.75 3.75h-1.5a.75.75 0 00-.75.75v3a.75.75 0 00.75.75h1.5l3.75 3.75V8.25z" /></svg>
+                <svg id="unmute-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25M6.75 8.25l-3.75 3.75h-1.5a.75.75 0 00-.75.75v3a.75.75 0 00.75.75h1.5l3.75 3.75V8.25z" /></svg>
+                <span>Mute</span>
+            </button>
+            <button class="game-control-btn" id="game-refresh-btn" title="Refresh Game">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.992 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.183m-4.992-4.992A8.25 8.25 0 002.985 19.644" /></svg>
+                <span>Refresh</span>
+            </button>
+            <button class="game-control-btn" id="game-fullscreen-btn" title="Enter Fullscreen">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75v4.5m0-4.5h-4.5m4.5 0L15 9M20.25 20.25v-4.5m0 4.5h-4.5m4.5 0L15 15" /></svg>
+                <span>Fullscreen</span>
+            </button>
+            <!-- Back Button -->
+            <button class="game-control-btn" id="game-back-btn" title="Back to Home">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+                <span>Back</span>
+            </button>
+        </div>
+
+        <!-- Game Details -->
+        <div id="game-details-wrapper">
+            <h3 id="game-description-title">About This Game</h3>
+            
+            <!-- Section 1: Screenshot (Left) + Writing (Right) -->
+            <div class="game-layout-section-1">
+                <img id="game-screenshot" src="https://placehold.co/600x400/1a1a1a/444?text=Game+Screenshot" alt="Game Screenshot">
+                <div id="game-description-part-1">
+                    <p>This is the first part of the game's description, appearing to the right of the screenshot. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut perspicuitas. Ista, inquam, quae in omni arte, in omni ordine, in omni discipline, in omni denique motu, in omni denique sensu, in omni denique cogitatione, in omni denique vita, in omni denique re, quae in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re.</p>
+                    <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
+                </div>
+            </div>
+
+            <!-- Section 2: Writing (Left) + Ad (Right) -->
+            <div class="game-layout-section-2">
+                <div id="game-description-part-2">
+                    <p>This is the second part of the game's description, appearing to the left of the ad. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis.</p>
+                    <p>Praesent dapibus, neque id cursus faucibus, tortor neque egestas auguae, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. (More placeholder text to fill space and show layout).</p>
+                </div>
+                <div id="game-description-ad-spot" class="ad-spot-mrec ad-placeholder">
+                    Ad Spot - MREC (300x250)
+                </div>
+            </div>
+
+            <!-- Section 3: Summary -->
+            <div id="game-description-summary">
+                <p>This is the final two-sentence summary of the game, appearing above the last ad banner. It wraps up the description nicely. What a great game!</p>
+            </div>
+
+            <!-- Section 4: Bottom Ad Banner -->
+            <div id="ad-spot-bottom-banner" class="ad-spot-bottom-banner ad-placeholder">
+                Ad Spot - Leaderboard (728x90)
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Custom Context Menu -->
+    <div id="custom-context-menu">
+        <div class="context-menu-item" id="ctx-reload">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.992 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.183m-4.992-4.992A8.25 8.25 0 002.985 19.644" /></svg>
+            <span>Reload</span>
+        </div>
+        <div class="context-menu-item" id="ctx-back">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+            <span>Back to Home</span>
+        </div>
+        <!-- Fullscreen removed from homepage menu -->
+    </div>
+
+
+    <!-- JavaScript -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- Element References ---
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        const appWrapper = document.getElementById('app-wrapper');
+        const mainElement = document.querySelector('main'); // Get main element
+        const menuBtn = document.getElementById('menu-btn');
+        const sideMenu = document.getElementById('side-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+        const menuLinks = document.querySelectorAll('.menu-link');
+        const pages = document.querySelectorAll('.page');
+        const gameGrid = document.getElementById('game-grid');
+        const offlineGameGrid = document.getElementById('offline-game-grid');
+        const toolsGrid = document.getElementById('tools-grid');
+        const offlineIndicator = document.getElementById('offline-indicator');
+        const bugReportLink = document.getElementById('bug-report-link');
+        const snip3rSign = document.getElementById('snip3r-sign');
+
+        // Game View Elements
+        const gameView = document.getElementById('game-view');
+        const gameTitle = document.getElementById('game-title');
+        const gameIframe = document.getElementById('game-iframe');
+        const gameIframeWrapper = document.getElementById('game-iframe-wrapper');
+        const gameMuteBtn = document.getElementById('game-mute-btn');
+        const muteIcon = document.getElementById('mute-icon');
+        const unmuteIcon = document.getElementById('unmute-icon');
+        const gameRefreshBtn = document.getElementById('game-refresh-btn');
+        const gameFullscreenBtn = document.getElementById('game-fullscreen-btn');
+        const gameBackBtn = document.getElementById('game-back-btn');
+        const gameToast = document.getElementById('game-toast');
+
+        // Game Details (NEW LAYOUT)
+        const gameScreenshot = document.getElementById('game-screenshot');
+        const gameDescriptionTitle = document.getElementById('game-description-title');
+        const gameDescriptionPart1 = document.getElementById('game-description-part-1');
+        const gameDescriptionPart2 = document.getElementById('game-description-part-2');
+        const gameDescriptionSummary = document.getElementById('game-description-summary');
+
+        // Settings
+        const toggleStarsBtn = document.getElementById('toggle-stars');
+        const starAnimationSelect = document.getElementById('star-animation-select');
+
+        // Notification Banners
+        const notificationBanner = document.getElementById('notification-banner');
+        const notificationText = document.getElementById('notification-text');
+        const notificationButton = document.getElementById('notification-button');
+        const notificationClose = document.getElementById('notification-close');
+        const notificationFadeCanvas = document.getElementById('notification-fade-canvas');
+        const gameErrorBanner = document.getElementById('game-error-banner');
+        const gameErrorClose = document.getElementById('game-error-close');
+        
+        // Context Menu
+        const contextMenu = document.getElementById('custom-context-menu');
+        const ctxReload = document.getElementById('ctx-reload');
+        const ctxBack = document.getElementById('ctx-back');
+
+        // --- Game & Tool Data ---
+        const gamesList = [
+            { name: "1v1.lol", img: "https://img.utdstc.com/icon/983/22a/98322a3b2be892eed31589906ffd949b68bcccc9a21ba562987965b5ec6bc6de:200", url: "https://securly.com.mji.ro/gamefile/1v1.html" },
+            { name: "Subway Surfers", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/cfd8641a9980d2d30c5035e16817e0b5.jpg", url: "https://securly.com.mji.ro/games/subway-surfers/index.html" },
+            { name: "Smash Karts", adSpot: true }, // Ad Spot
+            { name: "Ragdoll Archers", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/unnamed.png", url: "https://securly.com.mji.ro/games/ragdoll-archers/index.html" }, // No longer offline
+            { name: "Bitlife", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/unnamed.jpg", url: "https://securly.com.mji.ro/games/bitlife/index.html" },
+            { name: "Bad Time Simulator", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/Sans-Undertale-PNG-Image.png", url: "https://securly.com.mji.ro/games/bts/index.html" },
+            { name: "Retro Bowl", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/unnamed.webp", url: "https://securly.com.mji.ro/games/retro-bowl/index.html" },
+            { name: "Retro Bowl College", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/retro-bowl-college-logo.webp", url: "https://securly.com.mji.ro/games/rbcollege/index.html" },
+            { name: "Time Shooter 3", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/57bb8c7588843fe4c15abe2e9d43e7a3.jpg", url: "https://securly.com.mji.ro/games/timeshoot3/index.html" },
+            { name: "Solar Smash", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/081e7d23d789073e51f8d16d16c90533.png", url: "https://securly.com.mji.ro/gamefile/solar.html" },
+            { name: "Snow Rider", adSpot: true }, // Ad Spot
+            { name: "Placeholder 1", img: "https://placehold.co/200x200/1a1a1a/444?text=Game" },
+            { name: "Placeholder 2", img: "https://placehold.co/200x200/1a1a1a/444?text=Game" },
+            { name: "Placeholder 3", img: "https://placehold.co/200x200/1a1a1a/444?text=Game" },
+            { name: "Placeholder 4", img: "https://placehold.co/200x200/1a1a1a/444?text=Game" },
+            { name: "Placeholder 5", img: "https://placehold.co/200x200/1a1a1a/444?text=Game" }
+        ];
+
+        // NEW: Flash Games List
+        const flashGamesList = [
+            { name: "Flash Game 1", img: "https://placehold.co/200x200/1a1a1a/444?text=Flash+Game", url: "https://raw.githubusercontent.com/username/repo/main/game1.swf" },
+            { name: "Flash Game 2", img: "https://placehold.co/200x200/1a1a1a/444?text=Flash+Game", url: "https://raw.githubusercontent.com/username/repo/main/game2.swf" },
+            { name: "Flash Game 3", img: "https://placehold.co/200x200/1a1a1a/444?text=Flash+Game", url: "https://raw.githubusercontent.com/username/repo/main/game3.swf" },
+            { name: "Flash Game 4", img: "https://placehold.co/200x200/1a1a1a/444?text=Flash+Game", url: "https://raw.githubusercontent.com/username/repo/main/game4.swf" },
+            { name: "Flash Game 5", img: "https://placehold.co/200x200/1a1a1a/444?text=Flash+Game", url: "https://raw.githubusercontent.com/username/repo/main/game5.swf" }
+        ];
+
+        // This object holds all the details for the game page.
+        // We'll use 1v1.lol as the sample for all games for now.
+        const gameDetails = {
+            "default": {
+                screenshot: "https://img.utdstc.com/icon/983/22a/98322a3b2be892eed31589906ffd949b68bcccc9a21ba562987965b5ec6bc6de:200",
+                descriptionTitle: "About This Game",
+                part1: `
+                    <p>This is the first part of the game's description, appearing to the right of the screenshot. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut perspicuitas. Ista, inquam, quae in omni arte, in omni ordine, in omni discipline, in omni denique motu, in omni denique sensu, in omni denique cogitatione, in omni denique vita, in omni denique re, quae in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re.</p>
+                    <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
+                `,
+                part2: `
+                    <p>This is the second part of the game's description, appearing to the left of the ad. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis.</p>
+                    <p>Praesent dapibus, neque id cursus faucibus, tortor neque egestas auguae, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. (More placeholder text to fill space and show layout).</p>
+                `,
+                summary: `
+                    <p>This is the final two-sentence summary of the game, appearing above the last ad banner. It wraps up the description nicely. What a great game!</p>
+                `
+            }
+        };
+        
+        const toolsList = [
+            { name: "Image Rounder", icon: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/Screenshot%202025-11-14%2009.03.53.png", page: "tool-image-rounder" },
+            { name: "Password Generator", icon: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/Screenshot%202025-11-14%2009.07.48.png", page: "tool-password-generator" },
+            { name: "Unit Converter", icon: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/Screenshot%202025-11-14%2009.08.30.png", page: "tool-unit-converter" }
+        ];
+
+        // --- State ---
+        let stars = [];
+        let starAnimationId;
+        let starAnimationType = "snow"; // 'snow' or 'warp'
+        let starsActive = true;
+        let isMuted = false;
+        let hasBeenOffline = false;
+
+
+        // --- Starry Background ---
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createStars() {
+            stars = [];
+            let starCount = 500;
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    z: Math.random() * canvas.width, // For 3D effect in warp
+                    radius: Math.random() * 1.5 + 0.5,
+                    opacity: Math.random() * 0.5 + 0.2,
+                    speed: Math.random() * 0.5 + 0.1
+                });
+            }
+        }
+
+        function drawSnow() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                ctx.fill();
+
+                star.y += star.speed;
+                if (star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+            });
+        }
+
+        function drawWarp() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; // Trail effect
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            let cx = canvas.width / 2;
+            let cy = canvas.height / 2;
+
+            stars.forEach(star => {
+                let x = (star.x - cx) * (canvas.width / star.z) + cx;
+                let y = (star.y - cy) * (canvas.width / star.z) + cy;
+                let radius = star.radius * (canvas.width / star.z);
+
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                ctx.fill();
+
+                star.z -= 2; // Move star closer
+                if (star.z <= 0) {
+                    star.z = canvas.width;
+                    star.x = Math.random() * canvas.width;
+                    star.y = Math.random() * canvas.height;
+                }
+            });
+        }
+
+        function animateStars() {
+            if (starsActive) {
+                if (starAnimationType === 'snow') {
+                    drawSnow();
+                } else {
+                    drawWarp();
+                }
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear if disabled
+            }
+            starAnimationId = requestAnimationFrame(animateStars);
+        }
+
+        function startStarAnimation() {
+            if (starAnimationId) {
+                cancelAnimationFrame(starAnimationId);
+            }
+            resizeCanvas();
+            createStars();
+            animateStars();
+        }
+
+        // --- Snip3r Sign ---
+        snip3rSign.addEventListener('click', () => {
+            snip3rSign.classList.add('is-flipped');
+            setTimeout(() => {
+                snip3rSign.classList.remove('is-flipped');
+            }, 2000);
+        });
+
+        // --- Navigation ---
+        function toggleMenu() {
+            sideMenu.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+        }
+
+        function showPage(pageId) {
+            // Hide all pages
+            pages.forEach(page => page.classList.remove('active'));
+            
+            if (pageId.startsWith('tool-')) {
+                // Show specific tool page
+                const toolPage = document.getElementById(pageId);
+                if (toolPage) {
+                    toolPage.classList.add('active');
+                } else {
+                    // Fallback to tools grid
+                    document.getElementById('tools-page').classList.add('active');
+                }
+            } else {
+                // Show main page (games, tools, settings, offline-games)
+                const mainPage = document.getElementById(`${pageId}-page`);
+                if (mainPage) {
+                    mainPage.classList.add('active');
+                } else {
+                    document.getElementById('games-page').classList.add('active'); // Default
+                }
+            }
+
+            // Close menu
+            if (sideMenu.classList.contains('active')) {
+                toggleMenu();
+            }
+            
+            // Scroll main container to top
+            mainElement.scrollTop = 0;
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        menuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.dataset.page;
+                if (pageId) {
+                    showPage(pageId);
+                }
+            });
+        });
+
+        // --- Game Logic ---
+        function populateGameGrid() {
+            gameGrid.innerHTML = ''; // Clear existing
+            gamesList.forEach(game => {
+                // Inject Ad Card Placeholders
+                if (game.adSpot) {
+                    const adCard = document.createElement('div');
+                    adCard.className = 'ad-card';
+                    adCard.innerHTML = `Ad Spot - In-Grid (300x250)`;
+                    gameGrid.appendChild(adCard);
+                } else {
+                    const card = createGameCard(game);
+                    card.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (navigator.onLine) {
+                            launchGame(game);
+                        } else {
+                            showNotification("You must be online to play this game.", null, null, 3000);
+                        }
+                    });
+                    gameGrid.appendChild(card);
+                }
+            });
+        }
+        
+        // NEW: Populates the Flash Games page
+        function populateOfflineGameGrid() {
+            offlineGameGrid.innerHTML = '';
+
+            // Add Ad Spots
+            const adCard1 = document.createElement('div');
+            adCard1.className = 'ad-card';
+            adCard1.innerHTML = `Ad Spot - In-Grid (300x250)`;
+            offlineGameGrid.appendChild(adCard1);
+
+            flashGamesList.forEach(game => {
+                const card = createGameCard(game);
+                // Set href for flash games (will open in new tab or page)
+                card.href = game.url; // Use the direct URL
+                card.target = "_blank"; // Open flash games in new tab
+                offlineGameGrid.appendChild(card);
+            });
+
+            const adCard2 = document.createElement('div');
+            adCard2.className = 'ad-card';
+            adCard2.innerHTML = `Ad Spot - In-Grid (300x250)`;
+            offlineGameGrid.appendChild(adCard2);
+        }
+
+        function createGameCard(game) {
+            const card = document.createElement('a');
+            card.href = '#'; // Use href='#' for SPA navigation
+            card.className = 'card';
+            card.dataset.gameId = game.name;
+
+            card.innerHTML = `
+                <img src="${game.img}" alt="${game.name}" class="card-icon" onerror="this.src='https://placehold.co/200x200/000/333?text=N/A';">
+                <span>${game.name}</span>
+            `;
+            return card;
+        }
+
+        function launchGame(game) {
+            // Set Game Details
+            const details = gameDetails[game.name] || gameDetails["default"];
+            gameTitle.textContent = game.name;
+            gameScreenshot.src = details.screenshot || game.img || 'https://placehold.co/600x400/1a1a1a/444?text=Game+Screenshot';
+            gameDescriptionTitle.textContent = details.descriptionTitle || `About ${game.name}`;
+            
+            // Populate new layout
+            gameDescriptionPart1.innerHTML = details.part1;
+            gameDescriptionPart2.innerHTML = details.part2;
+            gameDescriptionSummary.innerHTML = details.summary;
+
+            // Show the game page layer
+            mainElement.style.display = 'none';
+            gameView.classList.add('active');
+            gameView.scrollTop = 0; // Scroll to top of game page
+            
+            // Load iframe
+            gameIframe.src = 'about:blank'; // Clear first
+            setTimeout(() => {
+                gameIframe.src = game.url;
+            }, 100);
+
+            // Add error handler
+            gameIframe.onerror = () => {
+                showGameError();
+            };
+
+            // Reset mute state
+            isMuted = false;
+            muteIcon.classList.remove('hidden');
+            unmuteIcon.classList.add('hidden');
+        }
+
+        function closeGame() {
+            // Per user request, reload the page to go back home
+            location.reload();
+        }
+
+        // Add listeners to game controls
+        gameBackBtn.addEventListener('click', closeGame);
+
+        gameMuteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            muteIcon.classList.toggle('hidden', isMuted);
+            unmuteIcon.classList.toggle('hidden', !isMuted);
+            showToast(isMuted ? "Mute/Unmute is controlled by your browser tab." : "Mute/Unmute is controlled by your browser tab.", 3000);
+        });
+
+        gameRefreshBtn.addEventListener('click', () => {
+            gameIframe.src = gameIframe.src; // Reload iframe
+            showToast("Refreshing game...");
+        });
+
+        gameFullscreenBtn.addEventListener('click', () => {
+            try {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    // Request fullscreen on the iframe wrapper
+                    gameIframeWrapper.requestFullscreen();
+                }
+            } catch (err) {
+                console.error("Fullscreen API error:", err);
+                showToast("Fullscreen is not supported on this browser.");
+            }
+        });
+
+        function showToast(message, duration = 2000) {
+            gameToast.textContent = message;
+            gameToast.classList.add('show');
+            
+            setTimeout(() => {
+                gameToast.classList.remove('show');
+            }, duration);
+        }
+
+        // --- Tool Grid & Pages ---
+        function populateToolsGrid() {
+            if (!toolsGrid) return;
+            toolsGrid.innerHTML = '';
+            toolsList.forEach(tool => {
+                const card = document.createElement('a');
+                card.href = '#';
+                card.className = 'card';
+                card.dataset.page = tool.page;
+
+                // Check if icon is SVG code or a URL
+                if (tool.icon.startsWith('<svg')) {
+                    card.innerHTML = `
+                        <div class="card-icon-svg">
+                            ${tool.icon}
+                        </div>
+                        <span>${tool.name}</span>
+                    `;
+                } else {
+                     card.innerHTML = `
+                        <img src="${tool.icon}" alt="${tool.name}" class="card-icon" onerror="this.src='https://placehold.co/200x200/000/333?text=N/A';">
+                        <span>${tool.name}</span>
+                    `;
+                }
+
+                card.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showPage(tool.page);
+                });
+                toolsGrid.appendChild(card);
+            });
+        }
+
+
+        // --- Tool: Image Rounder ---
+        const imageUploadBtn = document.getElementById('image-upload-btn');
+        const imageUploadInput = document.getElementById('image-upload-input');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const borderRadiusSlider = document.getElementById('border-radius-slider');
+        const borderRadiusValue = document.getElementById('border-radius-value');
+        const imageSizeSlider = document.getElementById('image-size-slider');
+        const imageSizeValue = document.getElementById('image-size-value');
+        const imageDownloadBtn = document.getElementById('image-download-btn');
+        
+        let uploadedImage = null;
+        let imagePreview = null;
+
+        if (imageUploadBtn) {
+            imageUploadBtn.addEventListener('click', () => imageUploadInput.click());
+
+            imageUploadInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        uploadedImage = new Image();
+                        uploadedImage.onload = () => {
+                            if (!imagePreview) {
+                                imagePreview = new Image();
+                                imagePreview.id = 'image-preview';
+                                imagePreviewContainer.innerHTML = '';
+                                imagePreviewContainer.appendChild(imagePreview);
+                            }
+                            imagePreview.src = uploadedImage.src;
+                            applyImageTransforms();
+                            imageDownloadBtn.disabled = false;
+                        };
+                        uploadedImage.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            if (borderRadiusSlider) {
+                borderRadiusSlider.addEventListener('input', () => {
+                    borderRadiusValue.textContent = borderRadiusSlider.value;
+                    applyImageTransforms();
+                });
+            }
+
+            if (imageSizeSlider) {
+                imageSizeSlider.addEventListener('input', () => {
+                    imageSizeValue.textContent = imageSizeSlider.value;
+                    applyImageTransforms();
+                });
+            }
+
+            imageDownloadBtn.addEventListener('click', () => {
+                if (!uploadedImage) return;
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                const scale = imageSizeSlider.value / 100;
+                const width = uploadedImage.width * scale;
+                const height = uploadedImage.height * scale;
+                const radius = (Math.min(width, height) / 2) * (borderRadiusSlider.value / 50);
+
+                canvas.width = width;
+                canvas.height = height;
+
+                ctx.beginPath();
+                ctx.moveTo(radius, 0);
+                ctx.lineTo(width - radius, 0);
+                ctx.quadraticCurveTo(width, 0, width, radius);
+                ctx.lineTo(width, height - radius);
+                ctx.quadraticCurveTo(width, height, width - radius, height);
+                ctx.lineTo(radius, height);
+                ctx.quadraticCurveTo(0, height, 0, height - radius);
+                ctx.lineTo(0, radius);
+                ctx.quadraticCurveTo(0, 0, radius, 0);
+                ctx.closePath();
+                ctx.clip();
+                
+                ctx.drawImage(uploadedImage, 0, 0, width, height);
+                
+                const link = document.createElement('a');
+                link.download = 'rounded-image.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        function applyImageTransforms() {
+            if (imagePreview) {
+                imagePreview.style.borderRadius = `${borderRadiusSlider.value}%`;
+                imagePreview.style.width = `${imageSizeSlider.value}%`;
+                imagePreview.style.height = `${imageSizeSlider.value}%`;
+            }
+        }
+        
+        // --- Tool: Password Generator ---
+        const passwordOutput = document.getElementById('password-output');
+        const passwordCopyBtn = document.getElementById('password-copy-btn');
+        const passwordLengthSlider = document.getElementById('password-length-slider');
+        const passwordLengthValue = document.getElementById('password-length-value');
+        const pwOptUppercase = document.getElementById('pw-opt-uppercase');
+        const pwOptLowercase = document.getElementById('pw-opt-lowercase');
+        const pwOptNumbers = document.getElementById('pw-opt-numbers');
+        const pwOptSymbols = document.getElementById('pw-opt-symbols');
+        const passwordGenerateBtn = document.getElementById('password-generate-btn');
+
+        if (passwordGenerateBtn) {
+            passwordLengthSlider.addEventListener('input', () => {
+                passwordLengthValue.textContent = passwordLengthSlider.value;
+            });
+
+            passwordGenerateBtn.addEventListener('click', generatePassword);
+            passwordCopyBtn.addEventListener('click', copyPassword);
+        }
+
+        function generatePassword() {
+            const length = parseInt(passwordLengthSlider.value);
+            const chars = {
+                upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                lower: 'abcdefghijklmnopqrstuvwxyz',
+                numbers: '0123456789',
+                symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+            };
+            
+            let charSet = '';
+            if (pwOptUppercase.checked) charSet += chars.upper;
+            if (pwOptLowercase.checked) charSet += chars.lower;
+            if (pwOptNumbers.checked) charSet += chars.numbers;
+            if (pwOptSymbols.checked) charSet += chars.symbols;
+
+            if (charSet === '') {
+                passwordOutput.textContent = 'Select options!';
+                return;
+            }
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += charSet.charAt(Math.floor(Math.random() * charSet.length));
+            }
+            passwordOutput.textContent = password;
+        }
+
+        function copyPassword() {
+            const password = passwordOutput.textContent;
+            if (password && password !== 'Click Generate...') {
+                // Use execCommand as a fallback for iframe environments
+                const tempTextarea = document.createElement('textarea');
+                tempTextarea.value = password;
+                document.body.appendChild(tempTextarea);
+                tempTextarea.select();
+                try {
+                    document.execCommand('copy');
+                    showNotification("Password copied!", null, null, 2000);
+                } catch (err) {
+                    showNotification("Failed to copy password.", null, null, 2000);
+                }
+                document.body.removeChild(tempTextarea);
+            }
+        }
+
+        // --- Tool: Unit Converter ---
+        const converterInputs = document.querySelectorAll('.converter-input');
+        const conversions = {
+            length: {
+                m: 1,
+                cm: 100,
+                km: 0.001,
+                in: 39.3701,
+                ft: 3.28084
+            },
+            mass: {
+                kg: 1,
+                g: 1000,
+                lb: 2.20462,
+                oz: 35.274
+            },
+            temp: {
+                c: {
+                    toBase: val => val,
+                    fromBase: val => val
+                },
+                f: {
+                    toBase: val => (val - 32) * 5/9,
+                    fromBase: val => (val * 9/5) + 32
+                },
+                k: {
+                    toBase: val => val - 273.15,
+                    fromBase: val => val + 273.15
+                }
+            }
+        };
+
+        converterInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                const group = e.target.dataset.group;
+                if (isNaN(value)) {
+                    clearGroupInputs(group, e.target);
+                    return;
+                }
+                
+                const fromUnit = e.target.dataset.unit;
+                updateConversions(value, fromUnit, group);
+            });
+        });
+
+        function clearGroupInputs(group, keepInput) {
+            converterInputs.forEach(input => {
+                if (input.dataset.group === group && input !== keepInput) {
+                    input.value = '';
+                }
+            });
+        }
+
+        function updateConversions(value, fromUnit, group) {
+            let baseValue;
+            const groupRates = conversions[group];
+
+            if (group === 'temp') {
+                baseValue = groupRates[fromUnit].toBase(value);
+            } else {
+                baseValue = value / groupRates[fromUnit];
+            }
+
+            converterInputs.forEach(input => {
+                if (input.dataset.group === group && input.dataset.unit !== fromUnit) {
+                    const toUnit = input.dataset.unit;
+                    let result;
+                    if (group === 'temp') {
+                        result = groupRates[toUnit].fromBase(baseValue);
+                    } else {
+                        result = baseValue * groupRates[toUnit];
+                    }
+                    input.value = parseFloat(result.toFixed(4));
+                }
+            });
+        }
+
+
+        // --- Offline Functionality ---
+        function updateOnlineStatus() {
+            if (navigator.onLine) {
+                offlineIndicator.classList.remove('active');
+                if (hasBeenOffline) {
+                    showNotification("You are back online!", null, null, 3000);
+                }
+                hasBeenOffline = false;
+                
+            } else {
+                offlineIndicator.classList.add('active');
+                hasBeenOffline = true;
+            }
+        }
+
+        // --- Notification System ---
+        function showNotification(text, buttonText = null, buttonCallback = null, autoHideDuration = null) {
+            notificationText.textContent = text;
+            
+            if (buttonText && buttonCallback) {
+                notificationButton.textContent = buttonText;
+                notificationButton.classList.remove('hidden');
+                notificationButton.onclick = buttonCallback;
+            } else {
+                notificationButton.classList.add('hidden');
+                notificationButton.onclick = null;
+            }
+
+            notificationClose.onclick = () => {
+                hideNotification(true);
+            };
+
+            appWrapper.style.paddingTop = '90px';
+            notificationBanner.classList.remove('show'); // Ensure others are hidden
+            gameErrorBanner.classList.add('show');
+            notificationBanner.classList.add('show');
+            notificationFadeCanvas.style.display = 'none'; // Ensure fade canvas is hidden
+
+            if (autoHideDuration) {
+                setTimeout(() => hideNotification(true), autoHideDuration);
+            }
+        }
+        
+        function hideNotification(usePixelFade) {
+            if (usePixelFade) {
+                pixelFadeOut();
+            } else {
+                appWrapper.style.paddingTop = '0px';
+                notificationBanner.classList.remove('show');
+            }
+        }
+        
+        // New Game Error Notification
+        function showGameError() {
+            appWrapper.style.paddingTop = '60px'; // Adjust for red banner
+            notificationBanner.classList.remove('show'); // Hide yellow
+            gameErrorBanner.classList.remove('show'); // Hide just in case
+            gameErrorBanner.classList.add('show');
+
+            setTimeout(hideGameError, 3000); // Auto-hide after 3s
+        }
+
+        function hideGameError() {
+            appWrapper.style.paddingTop = '0px';
+            gameErrorBanner.classList.remove('show');
+        }
+        
+        gameErrorClose.addEventListener('click', hideGameError);
+
+
+        function pixelFadeOut() {
+            // This function is complex and primarily for the yellow banner.
+            // We'll just do a simple fade for now.
+            appWrapper.style.paddingTop = '0px';
+            notificationBanner.classList.remove('show');
+        }
+
+
+        // --- Custom Context Menu ---
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            contextMenu.style.display = 'block';
+            
+            // Ensure menu stays within viewport
+            let x = e.clientX;
+            let y = e.clientY;
+            const menuWidth = contextMenu.offsetWidth;
+            const menuHeight = contextMenu.offsetHeight;
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            if (x + menuWidth > viewportWidth) {
+                x = viewportWidth - menuWidth - 5;
+            }
+            if (y + menuHeight > viewportHeight) {
+                y = viewportHeight - menuHeight - 5;
+            }
+
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+        });
+
+        document.addEventListener('click', () => {
+            contextMenu.style.display = 'none';
+        });
+
+        ctxReload.addEventListener('click', () => location.reload());
+        ctxBack.addEventListener('click', () => {
+             // If game is active, close it (which reloads). If not, go to home page.
+             if (gameView.classList.contains('active')) {
+                 closeGame();
+             } else {
+                 showPage('games');
+             }
+        });
+        
+        // --- Shortcut Disabling ---
+        document.addEventListener('keydown', (e) => {
+            // Disable Ctrl+U (View Source)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+                e.preventDefault();
+            }
+            // Disable Ctrl+Shift+C (Dev Tools Inspector)
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
+                e.preventDefault();
+            }
+            // Disable Ctrl+Shift+I (Dev Tools)
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'i') {
+                e.preventDefault();
+            }
+            // Disable F12 (Dev Tools)
+            if (e.key === 'F12') {
+                e.preventDefault();
+            }
+            // Disable Cmd+Opt+U (Mac View Source)
+            if (e.metaKey && e.altKey && e.key === 'u') {
+                e.preventDefault();
+            }
+            // Disable Cmd+Opt+C / Cmd+Shift+C (Mac DevTools)
+            if (e.metaKey && (e.altKey || e.shiftKey) && e.key.toLowerCase() === 'c') {
+                e.preventDefault();
+            }
+            // Disable Cmd+Opt+I (Mac DevTools)
+            if (e.metaKey && e.altKey && e.key.toLowerCase() === 'i') {
+                 e.preventDefault();
+            }
+        });
+
+
+        // --- Settings Logic ---
+        if(toggleStarsBtn) {
+            toggleStarsBtn.addEventListener('change', () => {
+                starsActive = toggleStarsBtn.checked;
+            });
+        }
+
+        if(starAnimationSelect) {
+            starAnimationSelect.addEventListener('change', () => {
+                starAnimationType = starAnimationSelect.value;
+                startStarAnimation(); // Restart with new style
+            });
+        }
+
+        // --- Initialization ---
+        function init() {
+            startStarAnimation();
+            populateGameGrid();
+            populateOfflineGameGrid(); // Renamed to populateFlashGamesGrid logic
+            populateToolsGrid();
+            
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                // Re-create stars on resize to fit new dimensions
+                createStars(); 
+            });
+
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus(); // Initial check
+        }
+
+        init();
+
+    });
+    </script>
+</body>
+</html>
