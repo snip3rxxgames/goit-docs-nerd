@@ -206,7 +206,8 @@
             justify-content: center;
             align-items: center;
             min-width: 0;
-            height: 80px; /* Made 30px taller */
+            height: 90px; /* Updated height */
+            max-width: 728px; /* Added max-width */
             background-color: #1a1a1a;
             border: 1px dashed #444;
             color: #555;
@@ -421,6 +422,19 @@
             text-align: center;
             font-size: 1rem;
             padding: 1rem;
+        }
+
+        /* New class for the ad card with the script */
+        .ad-card-script {
+            width: 300px;
+            height: 250px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0; /* The ad script handles its own padding/size */
         }
 
 
@@ -694,195 +708,8 @@
             color: #fff;
         }
         
-        /* --- Game View Page --- */
-        #game-view {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 50;
-            background-color: #000;
-            display: none;
-            flex-direction: column;
-            overflow-y: auto; /* Allow scrolling */
-        }
-        #game-view.active {
-            display: flex;
-        }
+        /* --- Game View Page (REMOVED) --- */
 
-        /* Ad Placeholder Styles */
-        .ad-placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #1a1a1a;
-            border: 1px dashed #444;
-            color: #555;
-            font-weight: 700;
-            border-radius: 8px;
-            margin: 1rem auto;
-            padding: 1rem;
-            text-align: center;
-            flex-shrink: 0;
-        }
-        #ad-spot-top {
-            width: 100%;
-            max-width: 728px;
-            height: 90px;
-        }
-        .ad-spot-mrec { /* Medium Rectangle */
-            width: 100%;
-            max-width: 300px;
-            height: 250px;
-        }
-        .ad-spot-bottom-banner {
-            width: 100%;
-            max-width: 728px;
-            height: 90px;
-        }
-
-        #game-iframe-wrapper {
-            width: 100%;
-            max-width: 1100px; /* Limit max game width */
-            margin: 0 auto;
-            aspect-ratio: 16 / 9; /* Force aspect ratio */
-            position: relative;
-            background-color: #0a0a0a;
-            border-radius: 8px;
-            overflow: hidden;
-            flex-shrink: 0; /* Prevent from shrinking */
-        }
-        #game-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .toast-message {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            z-index: 100;
-            font-weight: 600;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        .toast-message.show {
-            opacity: 1;
-        }
-
-        #game-controls {
-            flex-shrink: 0;
-            background-color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center; /* Center buttons */
-            gap: 1rem;
-            padding: 1rem;
-        }
-        .game-control-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            background-color: #1a1a1a;
-            color: #fff;
-            border: 1px solid #444;
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            text-decoration: none; /* For the 'a' tag */
-        }
-        .game-control-btn:hover {
-            border-color: #00ffff;
-            background-color: rgba(0, 255, 255, 0.1);
-            color: #00ffff;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-        }
-        .game-control-btn svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        /* Game Details Section */
-        #game-details-wrapper {
-            width: 100%;
-            max-width: 1100px;
-            margin: 1.5rem auto;
-            padding: 0 1rem;
-            color: #ccc;
-            line-height: 1.6;
-        }
-        #game-description-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 1.5rem;
-        }
-        /* Layout for Screenshot + Writing */
-        .game-layout-section-1, .game-layout-section-2 {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        @media (min-width: 768px) {
-            .game-layout-section-1 {
-                grid-template-columns: 400px 1fr; /* Widened screenshot */
-            }
-            .game-layout-section-2 {
-                grid-template-columns: 1fr 300px; /* Kept ad at 300px */
-            }
-        }
-        #game-screenshot {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid #444;
-            flex-shrink: 0;
-        }
-        #game-description-part-1 p,
-        #game-description-part-2 p {
-            margin-bottom: 1rem;
-        }
-        #game-description-ad-spot {
-            flex-shrink: 0;
-        }
-        /* Layout for final summary */
-        #game-description-summary {
-            text-align: center;
-            font-style: italic;
-            color: #aaa;
-            padding: 1rem 0;
-            margin-bottom: 1.5rem;
-        }
-
-        #game-title-bar {
-            display: flex;
-            justify-content: center; /* Center title */
-            align-items: center;
-            padding: 1rem;
-            max-width: 1100px;
-            margin: 0 auto;
-            width: 100%;
-            position: relative;
-        }
-        #game-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            user-select: none;
-        }
-        
         /* --- Offline Indicator --- */
         #offline-indicator {
             position: fixed;
@@ -941,7 +768,7 @@
 <body>
 
     <!-- Notification Banner (Yellow) -->
-    <div id="notification-banner">
+    <div id="notification-banner" class="hidden">
         <canvas id="notification-fade-canvas"></canvas>
         <div class="notification-content">
             <span id="notification-text">Notification text goes here.</span>
@@ -952,16 +779,7 @@
         </button>
     </div>
 
-    <!-- Game Error Banner (Red) -->
-    <div id="game-error-banner" class="notification-banner hidden">
-        <div class="notification-content">
-            <span id="game-error-text">Can't load game. Try again.</span>
-        </div>
-        <button id="game-error-close" class="notification-close" title="Close">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-        </button>
-    </div>
-
+    <!-- Game Error Banner (Red) - Removed from homepage, only on game page -->
 
     <!-- Starry Background -->
     <canvas id="star-canvas"></canvas>
@@ -1014,7 +832,8 @@
 
             <!-- Header Ad Spot -->
             <div id="header-ad-spot">
-                Ad Spot - Banner (468x60)
+                <!-- PASTE YOUR 728x90 GOOGLE ADSENSE SCRIPT HERE -->
+                Ad Spot - Leaderboard (728x90)
             </div>
 
             <!-- Visitor Counter -->
@@ -1238,82 +1057,7 @@
         </main>
     </div>
 
-    <!-- Game View Page (Full Screen Layer) -->
-    <div id="game-view" class="page">
-        <!-- Top Ad Spot -->
-        <div id="ad-spot-top" class="ad-placeholder">
-            Ad Spot - Leaderboard (728x90)
-        </div>
-
-        <!-- Game Title Bar -->
-        <div id="game-title-bar">
-            <h2 id="game-title">Game Title</h2>
-        </div>
-
-        <!-- Game Iframe -->
-        <div id="game-iframe-wrapper">
-            <iframe id="game-iframe" src="about:blank" allowfullscreen></iframe>
-            <div id="game-toast" class="toast-message"></div>
-        </div>
-
-        <!-- Game Controls -->
-        <div id="game-controls">
-            <button class="game-control-btn" id="game-mute-btn" title="Mute/Unmute">
-                <svg id="mute-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l-3.75 3.75h-1.5a.75.75 0 00-.75.75v3a.75.75 0 00.75.75h1.5l3.75 3.75V8.25z" /></svg>
-                <svg id="unmute-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25M6.75 8.25l-3.75 3.75h-1.5a.75.75 0 00-.75.75v3a.75.75 0 00.75.75h1.5l3.75 3.75V8.25z" /></svg>
-                <span>Mute</span>
-            </button>
-            <button class="game-control-btn" id="game-refresh-btn" title="Refresh Game">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.992 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.183m-4.992-4.992A8.25 8.25 0 002.985 19.644" /></svg>
-                <span>Refresh</span>
-            </button>
-            <button class="game-control-btn" id="game-fullscreen-btn" title="Enter Fullscreen">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75v4.5m0-4.5h-4.5m4.5 0L15 9M20.25 20.25v-4.5m0 4.5h-4.5m4.5 0L15 15" /></svg>
-                <span>Fullscreen</span>
-            </button>
-            <!-- Back Button -->
-            <button class="game-control-btn" id="game-back-btn" title="Back to Home">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
-                <span>Back</span>
-            </button>
-        </div>
-
-        <!-- Game Details -->
-        <div id="game-details-wrapper">
-            <h3 id="game-description-title">About This Game</h3>
-            
-            <!-- Section 1: Screenshot (Left) + Writing (Right) -->
-            <div class="game-layout-section-1">
-                <img id="game-screenshot" src="https://placehold.co/600x400/1a1a1a/444?text=Game+Screenshot" alt="Game Screenshot">
-                <div id="game-description-part-1">
-                    <p>This is the first part of the game's description, appearing to the right of the screenshot. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut perspicuitas. Ista, inquam, quae in omni arte, in omni ordine, in omni discipline, in omni denique motu, in omni denique sensu, in omni denique cogitatione, in omni denique vita, in omni denique re, quae in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re.</p>
-                    <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
-                </div>
-            </div>
-
-            <!-- Section 2: Writing (Left) + Ad (Right) -->
-            <div class="game-layout-section-2">
-                <div id="game-description-part-2">
-                    <p>This is the second part of the game's description, appearing to the left of the ad. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis.</p>
-                    <p>Praesent dapibus, neque id cursus faucibus, tortor neque egestas auguae, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. (More placeholder text to fill space and show layout).</p>
-                </div>
-                <div id="game-description-ad-spot" class="ad-spot-mrec ad-placeholder">
-                    Ad Spot - MREC (300x250)
-                </div>
-            </div>
-
-            <!-- Section 3: Summary -->
-            <div id="game-description-summary">
-                <p>This is the final two-sentence summary of the game, appearing above the last ad banner. It wraps up the description nicely. What a great game!</p>
-            </div>
-
-            <!-- Section 4: Bottom Ad Banner -->
-            <div id="ad-spot-bottom-banner" class="ad-spot-bottom-banner ad-placeholder">
-                Ad Spot - Leaderboard (728x90)
-            </div>
-        </div>
-    </div>
-
+    <!-- Game View Page (REMOVED) -->
 
     <!-- Custom Context Menu -->
     <div id="custom-context-menu">
@@ -1350,26 +1094,6 @@
         const bugReportLink = document.getElementById('bug-report-link');
         const snip3rSign = document.getElementById('snip3r-sign');
 
-        // Game View Elements
-        const gameView = document.getElementById('game-view');
-        const gameTitle = document.getElementById('game-title');
-        const gameIframe = document.getElementById('game-iframe');
-        const gameIframeWrapper = document.getElementById('game-iframe-wrapper');
-        const gameMuteBtn = document.getElementById('game-mute-btn');
-        const muteIcon = document.getElementById('mute-icon');
-        const unmuteIcon = document.getElementById('unmute-icon');
-        const gameRefreshBtn = document.getElementById('game-refresh-btn');
-        const gameFullscreenBtn = document.getElementById('game-fullscreen-btn');
-        const gameBackBtn = document.getElementById('game-back-btn');
-        const gameToast = document.getElementById('game-toast');
-
-        // Game Details (NEW LAYOUT)
-        const gameScreenshot = document.getElementById('game-screenshot');
-        const gameDescriptionTitle = document.getElementById('game-description-title');
-        const gameDescriptionPart1 = document.getElementById('game-description-part-1');
-        const gameDescriptionPart2 = document.getElementById('game-description-part-2');
-        const gameDescriptionSummary = document.getElementById('game-description-summary');
-
         // Settings
         const toggleStarsBtn = document.getElementById('toggle-stars');
         const starAnimationSelect = document.getElementById('star-animation-select');
@@ -1380,8 +1104,6 @@
         const notificationButton = document.getElementById('notification-button');
         const notificationClose = document.getElementById('notification-close');
         const notificationFadeCanvas = document.getElementById('notification-fade-canvas');
-        const gameErrorBanner = document.getElementById('game-error-banner');
-        const gameErrorClose = document.getElementById('game-error-close');
         
         // Context Menu
         const contextMenu = document.getElementById('custom-context-menu');
@@ -1390,23 +1112,24 @@
 
         // --- Game & Tool Data ---
         const gamesList = [
-            { name: "1v1.lol", img: "https://img.utdstc.com/icon/983/22a/98322a3b2be892eed31589906ffd949b68bcccc9a21ba562987965b5ec6bc6de:200", url: "https://securly.com.mji.ro/gamefile/1v1.html" },
-            { name: "Subway Surfers", img: "https://play-lh.googleusercontent.com/ScN4CEEgrYh-Bs-HYOIwBmw6zNpQs1ujW_ywRVHALWQaO2P5RuxKNXWzwRz7H9Wz3NTOTj7AIreVEDKrDz4E", url: "https://securly.com.mji.ro/games/subway-surfers/index.html" },
-            { name: "Smash Karts", adSpot: true }, // Ad Spot
-            { name: "Ragdoll Archers", img: "https://play-lh.googleusercontent.com/XMiWEMPbuq13oVcwYQ6ySLtZnBf7WpJ3rb7v-TM4MdFOvWfo1Z2hzSEAApRXzEcshjY", url: "https://securly.com.mji.ro/games/ragdoll-archers/index.html" }, // No longer offline
-            { name: "Bitlife", img: "https://play-lh.googleusercontent.com/fUM-UyywXxjC8soxAZdIlxJrlRRXmql8wkE426SHzft4lJycSKVd2jCYQQX1BEG9Xw", url: "https://securly.com.mji.ro/games/bitlife/index.html" },
-            { name: "Bad Time Simulator", img: "https://play-lh.googleusercontent.com/T08jAj6GRGQGPOw41mQrvM_bz0ZFbqtZVL8YMbLoAy-Qu6zmLwfV7BNrPCPpUX-ZWQ", url: "https://securly.com.mji.ro/games/bts/index.html" },
-            { name: "Retro Bowl", img: "https://upload.wikimedia.org/wikipedia/en/b/bf/Retro_Bowl_cover.png", url: "https://securly.com.mji.ro/games/retro-bowl/index.html" },
-            { name: "Retro Bowl College", img: "https://img.poki-cdn.com/cdn-cgi/image/q=78,scq=50,width=314,height=314,fit=cover,f=auto/d98547374c4129bf441b754d495e41aa/retro-bowl-college.png", url: "https://securly.com.mji.ro/games/rbcollege/index.html" },
-            { name: "Time Shooter 3", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/57bb8c7588843fe4c15abe2e9d43e7a3.jpg", url: "https://securly.com.mji.ro/games/timeshoot3/index.html" },
-            { name: "Solar Smash", img: "https://play-lh.googleusercontent.com/9oKsgghjeohO1ztpmG6SrIMAVLn8sAhwsRGKHuOaqfMghYWiFHJ1osjwf_fAaMQZA5Y", url: "https://securly.com.mji.ro/gamefile/solar.html" },
-            { name: "Snow Rider", adSpot: true }, // Ad Spot
+            { name: "1v1.lol", img: "https://img.utdstc.com/icon/983/22a/98322a3b2be892eed31589906ffd949b68bcccc9a21ba562987965b5ec6bc6de:200" },
+            { name: "Subway Surfers", img: "https://play-lh.googleusercontent.com/ScN4CEEgrYh-Bs-HYOIwBmw6zNpQs1ujW_ywRVHALWQaO2P5RuxKNXWzwRz7H9Wz3NTOTj7AIreVEDKrDz4E" },
+            { name: "Smash Karts", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/images.jpg" }, // adSpot removed
+            { name: "Ragdoll Archers", img: "https://play-lh.googleusercontent.com/XMiWEMPbuq13oVcwYQ6ySLtZnBf7WpJ3rb7v-TM4MdFOvWfo1Z2hzSEAApRXzEcshjY" }, // No longer offline
+            { name: "Bitlife", img: "https://play-lh.googleusercontent.com/fUM-UyywXxjC8soxAZdIlxJrlRRXmql8wkE426SHzft4lJycSKVd2jCYQQX1BEG9Xw" },
+            { name: "Bad Time Simulator", img: "https://play-lh.googleusercontent.com/T08jAj6GRGQGPOw41mQrvM_bz0ZFbqtZVL8YMbLoAy-Qu6zmLwfV7BNrPCPpUX-ZWQ" },
+            { name: "Retro Bowl", img: "https://upload.wikimedia.org/wikipedia/en/b/bf/Retro_Bowl_cover.png" },
+            { name: "Retro Bowl College", img: "https://img.poki-cdn.com/cdn-cgi/image/q=78,scq=50,width=314,height=314,fit=cover,f=auto/d98547374c4129bf441b754d495e41aa/retro-bowl-college.png", adSpot: true }, // adSpot ADDED
+            { name: "Time Shooter 3", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/57bb8c7588843fe4c15abe2e9d43e7a3.jpg" },
+            { name: "Solar Smash", img: "https://play-lh.googleusercontent.com/9oKsgghjeohO1ztpmG6SrIMAVLn8sAhwsRGKHuOaqfMghYWiFHJ1osjwf_fAaMQZA5Y" },
+            { name: "Snow Rider", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy4pT2IOPFKjPSpbVyKRi8dgk6AIVS1-iJWg&s" }, // adSpot removed
             { name: "Placeholder 1", img: "https://placehold.co/200x200/1a1a1a/444?text=Game" },
             { name: "Placeholder 2", img: "https://placehold.co/200x200/1a1a1a/444?text=Game" },
             { name: "Placeholder 3", img: "https://placehold.co/200x200/1a1a1a/444?text=Game" },
             { name: "Placeholder 4", img: "https://placehold.co/200x200/1a1a1a/444?text=Game" },
-            { name: "Placeholder 5", img: "https://placehold.co/200x200/1a1a1a/444?text=Game" }
+            { name: "Placeholder 5", img: "https://placehold.co/200x200/1a1a1a/444?text=Game", adSpot: true } // adSpot ADDED
         ];
+
 
         // NEW: Flash Games List
         const flashGamesList = [
@@ -1414,28 +1137,8 @@
             { name: "Flash Game 2", img: "https://placehold.co/200x200/1a1a1a/444?text=Flash+Game", url: "https://raw.githubusercontent.com/username/repo/main/game2.swf" },
             { name: "Flash Game 3", img: "https://placehold.co/200x200/1a1a1a/444?text=Flash+Game", url: "https://raw.githubusercontent.com/username/repo/main/game3.swf" },
             { name: "Flash Game 4", img: "https://placehold.co/200x200/1a1a1a/444?text=Flash+Game", url: "https://raw.githubusercontent.com/username/repo/main/game4.swf" },
-            { name: "Flash Game 5", img: "https://placehold.co/200x200/1a1a1a/444?text=Flash+Game", url: "https://raw.githubusercontent.com/username/repo/main/game5.swf" }
+            { name: "Placeholder 5", img: "https://placehold.co/200x200/1a1a1a/444?text=Flash+Game", url: "https://raw.githubusercontent.com/username/repo/main/game5.swf" }
         ];
-
-        // This object holds all the details for the game page.
-        // We'll use 1v1.lol as the sample for all games for now.
-        const gameDetails = {
-            "default": {
-                screenshot: "https://img.utdstc.com/icon/983/22a/98322a3b2be892eed31589906ffd949b68bcccc9a21ba562987965b5ec6bc6de:200",
-                descriptionTitle: "About This Game",
-                part1: `
-                    <p>This is the first part of the game's description, appearing to the right of the screenshot. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut perspicuitas. Ista, inquam, quae in omni arte, in omni ordine, in omni discipline, in omni denique motu, in omni denique sensu, in omni denique cogitatione, in omni denique vita, in omni denique re, quae in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re, in omni denique re.</p>
-                    <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
-                `,
-                part2: `
-                    <p>This is the second part of the game's description, appearing to the left of the ad. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis.</p>
-                    <p>Praesent dapibus, neque id cursus faucibus, tortor neque egestas auguae, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. (More placeholder text to fill space and show layout).</p>
-                `,
-                summary: `
-                    <p>This is the final two-sentence summary of the game, appearing above the last ad banner. It wraps up the description nicely. What a great game!</p>
-                `
-            }
-        };
         
         const toolsList = [
             { name: "Image Rounder", icon: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/Screenshot%202025-11-14%2009.03.53.png", page: "tool-image-rounder" },
@@ -1448,7 +1151,6 @@
         let starAnimationId;
         let starAnimationType = "snow"; // 'snow' or 'warp'
         let starsActive = true;
-        let isMuted = false;
         let hasBeenOffline = false;
 
 
@@ -1539,9 +1241,9 @@
 
         // --- Snip3r Sign ---
         snip3rSign.addEventListener('click', () => {
-            snip3rSign.classList.add('is-flipped');
+            snip3rSign.classList.add('is-flipped'); // <-- FIX: Changed to snip3rSign
             setTimeout(() => {
-                snip3rSign.classList.remove('is-flipped');
+                snip3rSign.classList.remove('is-flipped'); // <-- FIX: Changed to snip3rSign
             }, 2000);
         });
 
@@ -1597,25 +1299,50 @@
         });
 
         // --- Game Logic ---
+        function getGamePageUrl(gameName) {
+            // Create a simple name for the URL, e.g., "1v1.lol" -> "1v1lol.html"
+            return gameName.toLowerCase().replace(/[^a-z0-9]/g, '') + '.html';
+        }
+
         function populateGameGrid() {
             gameGrid.innerHTML = ''; // Clear existing
+            let adSpotCounter = 0; // <-- Add this
             gamesList.forEach(game => {
                 // Inject Ad Card Placeholders
                 if (game.adSpot) {
                     const adCard = document.createElement('div');
-                    adCard.className = 'ad-card';
-                    adCard.innerHTML = `Ad Spot - In-Grid (300x250)`;
+                    
+                    if (adSpotCounter === 0) { // <-- This is the first ad spot
+                        adCard.className = 'ad-card-script'; // Use new class
+                        adCard.innerHTML = `
+                            <!-- THIS IS THE AD SCRIPT YOU PROVIDED -->
+                            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3200722764438879"
+                            crossorigin="anonymous"><\/script>
+                            <!-- Square ad -->
+                            <ins class="adsbygoogle"
+                            style="display:inline-block;width:300px;height:250px"
+                            data-ad-client="ca-pub-3200722764438879"
+                            data-ad-slot="5018328897"></ins>
+                            <script>
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                            <\/script> 
+                            <!-- End AdSense Script -->
+                        `;
+                    } else { // <-- This is for all other ad spots
+                        adCard.className = 'ad-card'; // Use original class
+                        adCard.innerHTML = `
+                            <!-- PASTE YOUR GOOGLE ADSENSE SCRIPT HERE -->
+                            Ad Spot - In-Grid (300x250)
+                        `;
+                    }
                     gameGrid.appendChild(adCard);
+                    adSpotCounter++; // <-- Increment this
+
                 } else {
                     const card = createGameCard(game);
-                    card.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        if (navigator.onLine) {
-                            launchGame(game);
-                        } else {
-                            showNotification("You must be online to play this game.", null, null, 3000);
-                        }
-                    });
+                    // NEW: Set href to the new game page URL
+                    card.href = getGamePageUrl(game.name); 
+                    // No event listener, just a direct link
                     gameGrid.appendChild(card);
                 }
             });
@@ -1628,10 +1355,13 @@
             // Add Ad Spots
             const adCard1 = document.createElement('div');
             adCard1.className = 'ad-card';
-            adCard1.innerHTML = `Ad Spot - In-Grid (300x250)`;
-            offlineGameGrid.appendChild(adCard1);
+            adCard1.innerHTML = `
+                <!-- PASTE YOUR GOOGLE ADSENSE SCRIPT HERE -->
+                Ad Spot - In-Grid (300x250)
+            `;
+            offlineGameGrid.appendChild(adCard1); // <-- FIX: Moved before loop
 
-            flashGamesList.forEach(game => {
+            flashGamesList.forEach(game => { // <-- FIX: Removed nested loop
                 const card = createGameCard(game);
                 // Set href for flash games (will open in new tab or page)
                 card.href = game.url; // Use the direct URL
@@ -1641,98 +1371,24 @@
 
             const adCard2 = document.createElement('div');
             adCard2.className = 'ad-card';
-            adCard2.innerHTML = `Ad Spot - In-Grid (300x250)`;
+            adCard2.innerHTML = `
+                <!-- PASTE YOUR GOOGLE ADSENSE SCRIPT HERE -->
+                Ad Spot - In-Grid (300x250)
+            `;
             offlineGameGrid.appendChild(adCard2);
         }
 
         function createGameCard(game) {
             const card = document.createElement('a');
-            card.href = '#'; // Use href='#' for SPA navigation
+            // card.href is set in the calling function
             card.className = 'card';
             card.dataset.gameId = game.name;
 
             card.innerHTML = `
-                <img src="${game.img}" alt="${game.name}" class="card-icon" onerror="this.src='https://placehold.co/200x200/000/333?text=N/A';">
+                <img src="${game.img}" alt="${game.name}" class="card-icon" onerror="this.src='https://placehold.co/200x200/000/333?text=Error';">
                 <span>${game.name}</span>
             `;
             return card;
-        }
-
-        function launchGame(game) {
-            // Set Game Details
-            const details = gameDetails[game.name] || gameDetails["default"];
-            gameTitle.textContent = game.name;
-            gameScreenshot.src = details.screenshot || game.img || 'https://placehold.co/600x400/1a1a1a/444?text=Game+Screenshot';
-            gameDescriptionTitle.textContent = details.descriptionTitle || `About ${game.name}`;
-            
-            // Populate new layout
-            gameDescriptionPart1.innerHTML = details.part1;
-            gameDescriptionPart2.innerHTML = details.part2;
-            gameDescriptionSummary.innerHTML = details.summary;
-
-            // Show the game page layer
-            mainElement.style.display = 'none';
-            gameView.classList.add('active');
-            gameView.scrollTop = 0; // Scroll to top of game page
-            
-            // Load iframe
-            gameIframe.src = 'about:blank'; // Clear first
-            setTimeout(() => {
-                gameIframe.src = game.url;
-            }, 100);
-
-            // Add error handler
-            gameIframe.onerror = () => {
-                showGameError();
-            };
-
-            // Reset mute state
-            isMuted = false;
-            muteIcon.classList.remove('hidden');
-            unmuteIcon.classList.add('hidden');
-        }
-
-        function closeGame() {
-            // Per user request, reload the page to go back home
-            location.reload();
-        }
-
-        // Add listeners to game controls
-        gameBackBtn.addEventListener('click', closeGame);
-
-        gameMuteBtn.addEventListener('click', () => {
-            isMuted = !isMuted;
-            muteIcon.classList.toggle('hidden', isMuted);
-            unmuteIcon.classList.toggle('hidden', !isMuted);
-            showToast(isMuted ? "Mute/Unmute is controlled by your browser tab." : "Mute/Unmute is controlled by your browser tab.", 3000);
-        });
-
-        gameRefreshBtn.addEventListener('click', () => {
-            gameIframe.src = gameIframe.src; // Reload iframe
-            showToast("Refreshing game...");
-        });
-
-        gameFullscreenBtn.addEventListener('click', () => {
-            try {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                } else {
-                    // Request fullscreen on the iframe wrapper
-                    gameIframeWrapper.requestFullscreen();
-                }
-            } catch (err) {
-                console.error("Fullscreen API error:", err);
-                showToast("Fullscreen is not supported on this browser.");
-            }
-        });
-
-        function showToast(message, duration = 2000) {
-            gameToast.textContent = message;
-            gameToast.classList.add('show');
-            
-            setTimeout(() => {
-                gameToast.classList.remove('show');
-            }, duration);
         }
 
         // --- Tool Grid & Pages ---
@@ -1755,7 +1411,7 @@
                     `;
                 } else {
                      card.innerHTML = `
-                        <img src="${tool.icon}" alt="${tool.name}" class="card-icon" onerror="this.src='https://placehold.co/200x200/000/333?text=N/A';">
+                        <img src="${tool.icon}" alt="${tool.name}" class="card-icon" onerror="this.src='https://placehold.co/200x200/000/333?text=Error';">
                         <span>${tool.name}</span>
                     `;
                 }
@@ -2026,7 +1682,7 @@
         }
 
         // --- Notification System ---
-        function showNotification(text, buttonText = null, buttonCallback = null, autoHideDuration = null) {
+        function showNotification(text, buttonText = null, buttonCallback = null, autoHideDuration = null, isClickDismiss = true) {
             notificationText.textContent = text;
             
             if (buttonText && buttonCallback) {
@@ -2062,24 +1718,8 @@
             }
         }
         
-        // New Game Error Notification
-        function showGameError() {
-            appWrapper.style.paddingTop = '60px'; // Adjust for red banner
-            notificationBanner.classList.remove('show'); // Hide yellow
-            gameErrorBanner.classList.remove('show'); // Hide just in case
-            gameErrorBanner.classList.add('show');
-
-            setTimeout(hideGameError, 3000); // Auto-hide after 3s
-        }
-
-        function hideGameError() {
-            appWrapper.style.paddingTop = '0px';
-            gameErrorBanner.classList.remove('show');
-        }
+        // Removed game error banner logic from homepage
         
-        gameErrorClose.addEventListener('click', hideGameError);
-
-
         function pixelFadeOut() {
             // This function is complex and primarily for the yellow banner.
             // We'll just do a simple fade for now.
@@ -2118,12 +1758,7 @@
 
         ctxReload.addEventListener('click', () => location.reload());
         ctxBack.addEventListener('click', () => {
-             // If game is active, close it (which reloads). If not, go to home page.
-             if (gameView.classList.contains('active')) {
-                 closeGame();
-             } else {
-                 showPage('games');
-             }
+             showPage('games');
         });
         
         // --- Shortcut Disabling ---
