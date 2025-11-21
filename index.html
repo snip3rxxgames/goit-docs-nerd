@@ -61,22 +61,6 @@
             top: 0;
         }
         
-        /* NEW: Game Error Banner (Hidden on homepage) */
-        #game-error-banner {
-            background-color: #D90429; /* Bright red */
-            color: #fff;
-            font-weight: 700;
-            height: auto; /* Auto height */
-            padding: 1rem 1.5rem; /* Padding for content */
-        }
-        #game-error-banner .notification-content {
-            color: #fff;
-            font-weight: 700;
-        }
-        #game-error-banner #notification-close svg {
-            stroke: #fff;
-        }
-
         #notification-fade-canvas {
             position: absolute;
             top: 0;
@@ -426,15 +410,15 @@
 
         /* New class for the ad card with the script */
         .ad-card-script {
-            width: 300px;
-            height: 250px;
-            background-color: #1a1a1a;
-            border: 1px solid #333;
+            width: 100%;
+            aspect-ratio: 1 / 1.2; /* Match the other cards */
+            background-color: transparent; /* <-- REMOVED GREY */
+            border: none; /* <-- REMOVED BORDER */
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0; /* The ad script handles its own padding/size */
+            overflow: hidden; /* Clip the ad if it's too big */
         }
 
 
@@ -1104,6 +1088,8 @@
         const notificationButton = document.getElementById('notification-button');
         const notificationClose = document.getElementById('notification-close');
         const notificationFadeCanvas = document.getElementById('notification-fade-canvas');
+        // const gameErrorBanner = document.getElementById('game-error-banner'); // <-- Removed
+        // const gameErrorClose = document.getElementById('game-error-close'); // <-- Removed
         
         // Context Menu
         const contextMenu = document.getElementById('custom-context-menu');
@@ -1112,9 +1098,9 @@
 
         // --- Game & Tool Data ---
         const gamesList = [
-            { name: "1v1.lol", img: "https://img.utdstc.com/icon/983/22a/98322a3b2be892eed31589906ffd949b68bcccc9a21ba562987965b5ec6bc6de:200" },
-            { name: "Subway Surfers", img: "https://play-lh.googleusercontent.com/ScN4CEEgrYh-Bs-HYOIwBmw6zNpQs1ujW_ywRVHALWQaO2P5RuxKNXWzwRz7H9Wz3NTOTj7AIreVEDKrDz4E" },
-            { name: "Smash Karts", img: "https://raw.githubusercontent.com/snip3rxxgames/mp3-files-for-html/refs/heads/main/images.jpg" }, // adSpot removed
+            { name: "1v1.lol", img: "https://img.utdstc.com/icon/983/22a/98322a3b2be892eed31589906ffd949b68bcccc9a21ba562987965b5ec6bc6de:200" }, // <-- This one is good
+            { name: "Subway Surfers", img: "https://play-lh.googleusercontent.com/f8D22-YftAAy9I2-b-9Q5f-iN46i-62z7-8Ts-jE-XS-u-M1-a-QN-y-6-hACJqZ_g" }, // <-- NEW LINK
+            { name: "Smash Karts", img: "https://play-lh.googleusercontent.com/1-bC-5vP_t7fab-YEOOBNn1sDpreJ-CHy-lz6_43-e-n9f-3-42Lq0-I-v-3CjuaUas" }, // <-- NEW LINK
             { name: "Ragdoll Archers", img: "https://play-lh.googleusercontent.com/XMiWEMPbuq13oVcwYQ6ySLtZnBf7WpJ3rb7v-TM4MdFOvWfo1Z2hzSEAApRXzEcshjY" }, // No longer offline
             { name: "Bitlife", img: "https://play-lh.googleusercontent.com/fUM-UyywXxjC8soxAZdIlxJrlRRXmql8wkE426SHzft4lJycSKVd2jCYQQX1BEG9Xw" },
             { name: "Bad Time Simulator", img: "https://play-lh.googleusercontent.com/T08jAj6GRGQGPOw41mQrvM_bz0ZFbqtZVL8YMbLoAy-Qu6zmLwfV7BNrPCPpUX-ZWQ" },
@@ -1700,7 +1686,7 @@
 
             appWrapper.style.paddingTop = '90px';
             notificationBanner.classList.remove('show'); // Ensure others are hidden
-            gameErrorBanner.classList.add('show');
+            // gameErrorBanner.classList.add('show'); // <-- Removed (This was the error)
             notificationBanner.classList.add('show');
             notificationFadeCanvas.style.display = 'none'; // Ensure fade canvas is hidden
 
